@@ -8,7 +8,7 @@ app = FastAPI()
 
 class Book(BaseModel):
    # Book_ID: int = None
-    Bookname: str
+    Book_title: str
     Author: str
     Year: str
     Available: bool
@@ -17,7 +17,7 @@ class Book(BaseModel):
 books = {
     1: {
         
-        "Bookname": "Harry Potter och de vise sten",
+        "Book_title": "Harry Potter och de vise sten",
         "Author": "J.K Rowling",
         "Year": "1997",
         "Available": True,
@@ -27,26 +27,46 @@ books = {
 
     2: {
         
-        "Bookname": "Kafta på stranden",
+        "Book_title": "Kafta på stranden",
         "Author": "Haruki Murakami",
         "Year": "2002",
-        "Available": False,
+        "Available": True,
         "Book_ID": 2
+        
+    },
+
+    3: {
+        
+        "Book_title": "Sagan om ringen",
+        "Author": "J.R.R. Tolkien",
+        "Year": "1959",
+        "Available": True,
+        "Book_ID": 3
         
     }
 
+
 }
+
+
+@app.get("/")
+def main_page():
+    return {"message": "Welcome to the main page!"}
 
 
 @app.get("/show-library")
 def show_library():
     return books
 
-@app.get("/get-book/{book_number}")
-def get_book(book_number: int):
-    return books[book_number]
+@app.get("/get-book/{book_title}")
+def get_book(book_title: str):
+    for book in books:
+        if book_title == book["Book_title"]:
+            return (f"{book_title} is available!")
+        else:
+            return (f"We dont have that book!")
 
-@app.post("/add-book/")
+@app.post("/add-book")
 def add_book(book: Book): 
     book_id = len(books) + 1
 
@@ -59,4 +79,4 @@ def add_book(book: Book):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port= 8000)    
+    uvicorn.run(app, host="127.0.0.1", port= 5000)    
