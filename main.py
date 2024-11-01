@@ -7,7 +7,6 @@ app = FastAPI()
 
 
 class Book(BaseModel):
-   # Book_ID: int = None
     Book_title: str
     Author: str
     Year: str
@@ -60,11 +59,11 @@ def show_library():
 
 @app.get("/get-book/{book_title}")
 def get_book(book_title: str):
-    for book in books:
-        if book_title == book["Book_title"]:
+    for book_id, book in books.items():
+        if book_title.lower() == book["Book_title"].lower():
             return (f"{book_title} is available!")
-        else:
-            return (f"We dont have that book!")
+        
+    return (f"We dont have that book!")
 
 @app.post("/add-book")
 def add_book(book: Book): 
