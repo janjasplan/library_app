@@ -4,3 +4,4 @@ class User():
         self.name = name
         self.online = False
         self.loaned_books = []        
+
