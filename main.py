@@ -72,7 +72,7 @@ def delete_book(book_id: int):
 
 # Book rental
 @app.get("/books")
-def read_root():
+def all_books():
 	return Books
 
 @app.get("/books/{book_id}")
