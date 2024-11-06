@@ -51,7 +51,6 @@ def get_book(book_title: str):
 @app.post("/add-book")
 def add_book(book: Book): 
     book_id = len(Books) + 1
-
     book_data = book.model_dump()
     book_data["id"] = book_id
     Books[book_id] = book_data
