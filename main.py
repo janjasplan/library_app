@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 import uvicorn
 from pydantic import BaseModel
 import os, json
+from datetime import datetime
 
 app = FastAPI()
 
@@ -45,7 +46,11 @@ def get_book_by_title(book_title: str):
     raise HTTPException(status_code = 404, detail = "Book not found")
 
 @app.post("/add-book")
-def add_book(book: Book): 
+def add_book(book: Book):
+
+	cur_year = datetime.now().year
+	if book.year > cur_year:
+		raise HTTPException(status_code = 400, detail = "Year is in the future")
 
 	book_id = len(Books) + 1
 	book_data = book.model_dump()

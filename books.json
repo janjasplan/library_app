@@ -33,5 +33,12 @@
         "author": "Louis Sachar",
         "year": 1998,
         "renter": null
+    },
+    "6": {
+        "id": 6,
+        "title": "Somebook2",
+        "author": "Nackademin",
+        "year": 2992,
+        "renter": null
     }
 }
