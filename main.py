@@ -55,28 +55,13 @@ def add_book(book: Book):
 
 	return book_data
 
-def adjust_indexes( start_index: int ):
-	hit = False
-	for i, book_id in enumerate(Books):
-		book = Books[book_id]
-		book_idx = int( book_id )
-		if start_index <= book_idx:
-			hit = True
-			
-		if hit:
-			idx = str( i - 1 )
-			book["id"] = i - 1
-			# Books[book_id]
-			del Books[book_id]
-			Books[idx] = book
-
 @app.post("/delete-book/{book_id}")
-def delete_book(book_id: str):
-	if book_id not in Books:
+def delete_book(book_id: int):
+	book_id_str = str( book_id )
+	if Books.get( book_id_str, None ) == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 
-	del Books[book_id]
-	adjust_indexes( int( book_id ) )
+	del Books[book_id_str]
 	save_books()
 	return {"message": "Book deleted"}
 
