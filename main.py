@@ -36,6 +36,11 @@ def save_books():
 	with open('books.json', 'w', encoding='utf-8') as f:
 		json.dump(Books, f, ensure_ascii=False, indent=4)
 
+# Book rental
+@app.get("/books")
+def all_books():
+	return Books
+
 # Admin stuff.
 @app.get("/get-book-by-title/{book_title}")
 def get_book_by_title(book_title: str):
@@ -60,7 +65,7 @@ def add_book(book: Book):
 
 	return book_data
 
-@app.post("/delete-book/{book_id}")
+@app.post("/delete-book")
 def delete_book(book_id: int):
 	book_id_str = str( book_id )
 	if Books.get( book_id_str ) == None:
@@ -70,10 +75,6 @@ def delete_book(book_id: int):
 	save_books()
 	return {"message": "Book deleted"}
 
-# Book rental
-@app.get("/books")
-def all_books():
-	return Books
 
 @app.get("/books/{book_id}")
 def get_book(book_id: str):
