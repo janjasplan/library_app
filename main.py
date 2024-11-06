@@ -25,10 +25,10 @@ if os.path.exists('books.json'):
 else:
 	Books = {
 		"1": {"id": 1, "title": "Harry Potter och de vise sten", "author": "J.K Rowling", "year": 1997, "renter": None},
-		"2": {"id": 1, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "year": 1925, "renter": None},
-		"3": {"id": 2, "title": "Kafta på stranden", "author": "Haruki Murakami", "year": 2002, "renter": None},
-		"4": {"id": 3, "title": "Sagan om ringen", "author": "J.R.R. Tolkien", "year": 1959, "renter": None},
-		"5": {"id": 4, "title": "Holes", "author": "Louis Sachar", "year": 1998, "renter": None},
+		"2": {"id": 2, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "year": 1925, "renter": None},
+		"3": {"id": 3, "title": "Kafta på stranden", "author": "Haruki Murakami", "year": 2002, "renter": None},
+		"4": {"id": 4, "title": "Sagan om ringen", "author": "J.R.R. Tolkien", "year": 1959, "renter": None},
+		"5": {"id": 5, "title": "Holes", "author": "Louis Sachar", "year": 1998, "renter": None},
 	}
 
 def save_books():
