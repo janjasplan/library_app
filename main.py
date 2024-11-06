@@ -14,16 +14,16 @@ class Book( BaseModel ):
     id: int
     title: str
     author: str
-    year: str
+    year: int
     renter: User | None
 
 # Load saved state
 # or setup initial state
 if os.path.exists('books.json'):
 	with open('books.json', 'r', encoding='utf-8') as f:
-		Books = json.load(f)
+		Books: dict[str, Book] = json.load(f)
 else:
-	Books = {
+	Books: dict[str, Book] = {
 		"1": {"id": 1, "title": "Harry Potter och de vise sten", "author": "J.K Rowling", "year": 1997, "renter": None},
 		"2": {"id": 2, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "year": 1925, "renter": None},
 		"3": {"id": 3, "title": "Kafta på stranden", "author": "Haruki Murakami", "year": 2002, "renter": None},
@@ -35,28 +35,50 @@ def save_books():
 	with open('books.json', 'w', encoding='utf-8') as f:
 		json.dump(Books, f, ensure_ascii=False, indent=4)
 
-@app.get("/")
-def main_page():
-    return {"message": "Welcome to the main page!"}
-
 # Admin stuff.
-@app.get("/get-book/{book_title}")
-def get_book(book_title: str):
+@app.get("/get-book-by-title/{book_title}")
+def get_book_by_title(book_title: str):
     for book_id, book in Books.items():
         if book_title.lower() == book["title"].lower():
-            return (f"{book_title} is available!")
+            return book
         
-    return (f"We dont have that book!")
+    raise HTTPException(status_code = 404, detail = "Book not found")
 
 @app.post("/add-book")
 def add_book(book: Book): 
-	
-    book_id = len(Books) + 1
-    book_data = book.model_dump()
-    book_data["id"] = book_id
-    Books[book_id] = book_data
 
-    return book_data
+	book_id = len(Books) + 1
+	book_data = book.model_dump()
+	book_data["id"] = book_id
+	Books[book_id] = book_data
+	save_books()
+
+	return book_data
+
+def adjust_indexes( start_index: int ):
+	hit = False
+	for i, book_id in enumerate(Books):
+		book = Books[book_id]
+		book_idx = int( book_id )
+		if start_index <= book_idx:
+			hit = True
+			
+		if hit:
+			idx = str( i - 1 )
+			book["id"] = i - 1
+			# Books[book_id]
+			del Books[book_id]
+			Books[idx] = book
+
+@app.post("/delete-book/{book_id}")
+def delete_book(book_id: str):
+	if book_id not in Books:
+		raise HTTPException(status_code = 404, detail = "Book not found")
+
+	del Books[book_id]
+	adjust_indexes( int( book_id ) )
+	save_books()
+	return {"message": "Book deleted"}
 
 # Book rental
 @app.get("/books")
@@ -64,8 +86,8 @@ def read_root():
 	return Books
 
 @app.get("/books/{book_id}")
-def get_book_mine(book_id: str):
-	book = Books[book_id]
+def get_book(book_id: str):
+	book = Books.get( book_id, None )
 	if book == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 
@@ -73,7 +95,7 @@ def get_book_mine(book_id: str):
 
 @app.post("/books/{book_id}/rent")
 def rent_book(book_id: str, renter: str):
-	book = Books[book_id]
+	book = Books.get( book_id, None )
 	if book == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 	
@@ -86,7 +108,7 @@ def rent_book(book_id: str, renter: str):
 
 @app.post("/books/{book_id}/return")
 def return_book(book_id: str, renter: str):
-	book = Books[book_id]
+	book = Books.get( book_id, None )
 	if book == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 
