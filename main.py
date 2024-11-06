@@ -58,7 +58,7 @@ def add_book(book: Book):
 @app.post("/delete-book/{book_id}")
 def delete_book(book_id: int):
 	book_id_str = str( book_id )
-	if Books.get( book_id_str, None ) == None:
+	if Books.get( book_id_str ) == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 
 	del Books[book_id_str]
@@ -72,7 +72,7 @@ def read_root():
 
 @app.get("/books/{book_id}")
 def get_book(book_id: str):
-	book = Books.get( book_id, None )
+	book = Books.get( book_id )
 	if book == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 
@@ -80,7 +80,7 @@ def get_book(book_id: str):
 
 @app.post("/books/{book_id}/rent")
 def rent_book(book_id: str, renter: str):
-	book = Books.get( book_id, None )
+	book = Books.get( book_id )
 	if book == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 	
@@ -93,7 +93,7 @@ def rent_book(book_id: str, renter: str):
 
 @app.post("/books/{book_id}/return")
 def return_book(book_id: str, renter: str):
-	book = Books.get( book_id, None )
+	book = Books.get( book_id )
 	if book == None:
 		raise HTTPException(status_code = 404, detail = "Book not found")
 
