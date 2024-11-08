@@ -6,24 +6,41 @@ from datetime import datetime
 
 app = FastAPI()
 
-# Modell för användare
+
 class User( BaseModel ):
-    username: str
-    password: str
+	"""
+	En klass för att definera en användare. Vi använder oss av Basemodel från modulen pydantic för att validera indata. 
+	Vi har två attribut här. Ett för användarnamn och ett för lösenordet. Detta för att användaren ska kunna logga in och låna böcker.
+
+	"""
+	username: str
+	password: str
 
 class Book( BaseModel ):
-    id: int
-    title: str
-    author: str
-    year: int
-    renter: User | None
+	"""
+	En klass för att definera våra böcker. Här använder vi oss också av Basemodel för att validera indata.
+	Här har vi fem attribut. Attributen är id-nummer, bokens titel, författare, året boken publicerades samt vem som har lånat boken. 
+	Attributet renter sätts som default till None då boken till en början inte har någon ägare. 
 
-# Load saved state
-# or setup initial state
+	"""
+	id: int
+	title: str
+	author: str
+	year: int
+	renter: User | None
+
+
+
+
+#Vi ser efter filen books.json i vår nuvarande directory. 
+#Vi öppnar upp den i läsläge, kodar av den samt skapar ett filobjekt (f) som refererar till filen.
+#Sedan konverterar vi datan till json och lagrar det i variabeln Books.
+#Ifall ingen fil finns så används ett lokalt dictionary med några förskapade böcker. 
 if os.path.exists('books.json'):
 	with open('books.json', 'r', encoding='utf-8') as f:
 		Books: dict[str, Book] = json.load(f)
 else:
+
 	Books: dict[str, Book] = {
 		"1": {"id": 1, "title": "Harry Potter och de vise sten", "author": "J.K Rowling", "year": 1997, "renter": None},
 		"2": {"id": 2, "title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "year": 1925, "renter": None},
@@ -33,6 +50,13 @@ else:
 	}
 
 def save_books():
+	"""
+	Här har vi en funktion för att spara ändringar som görs i vår variabel "Books" till en extern fil i vår nuvarande directory.
+	Funktionen anropas i andra funktioner beroende på vilka ändringar som görs. 
+	Vi ser först ifall filen finns och öppnar upp den i write läge. Detta för att skriva över allt innehåll ifall det finns något. 
+	Annars skapas filen på nytt och allt uppdaterat innehåll i Books förs över. 
+	
+	"""
 	with open('books.json', 'w', encoding='utf-8') as f:
 		json.dump(Books, f, ensure_ascii=False, indent=4)
 
@@ -65,15 +89,15 @@ def add_book(book: Book):
 
 	return book_data
 
-@app.post("/delete-book")
+@app.delete("/delete-book")
 def delete_book(book_id: int):
-	book_id_str = str( book_id )
-	if Books.get( book_id_str ) == None:
-		raise HTTPException(status_code = 404, detail = "Book not found")
+    book_id_str = str(book_id)
+    if Books.get(book_id_str) == None:
+        raise HTTPException(status_code=404, detail="Book not found")
 
-	del Books[book_id_str]
-	save_books()
-	return {"message": "Book deleted"}
+    del Books[book_id_str]
+    save_books()
+    return {"message": "Book deleted"}
 
 
 @app.get("/books/{book_id}")
@@ -96,7 +120,7 @@ def rent_book(book_id: str, renter: str):
 	Books[book_id]['renter'] = renter
 	save_books()
 	return book
-
+ 
 @app.post("/books/{book_id}/return")
 def return_book(book_id: str, renter: str):
 	book = Books.get( book_id )
