@@ -76,64 +76,103 @@ def get_book_by_title(book_title: str):
 
 @app.post("/add-book")
 def add_book(book: Book):
-
-	cur_year = datetime.now().year
-	if book.year > cur_year:
-		raise HTTPException(status_code = 400, detail = "Year is in the future")
-
-	book_id = len(Books) + 1
-	book_data = book.model_dump()
-	book_data["id"] = book_id
-	Books[book_id] = book_data
-	save_books()
-
-	return book_data
+    """
+    Add a new book to the library.
+    Args:
+        book (Book): Pydantic model containing book details
+    Returns:
+        dict: Added book's details including assigned ID
+    Raises:
+        HTTPException: 400 if publication year is in the future
+    """
+    cur_year = datetime.now().year
+    if book.year > cur_year:
+        raise HTTPException(status_code=400, detail="Year is in the future")
+    
+    book_id = len(Books) + 1
+    book_data = book.model_dump()
+    book_data["id"] = book_id
+    Books[book_id] = book_data
+    save_books()  # Persist changes to storage
+    return book_data
 
 @app.delete("/delete-book")
 def delete_book(book_id: int):
+    """
+    Delete a book from the library.
+    Args:
+        book_id (int): ID of the book to delete
+    Returns:
+        dict: Success message
+    Raises:
+        HTTPException: 404 if book not found
+    """
     book_id_str = str(book_id)
     if Books.get(book_id_str) == None:
         raise HTTPException(status_code=404, detail="Book not found")
-
     del Books[book_id_str]
-    save_books()
+    save_books()  # Persist changes to storage
     return {"message": "Book deleted"}
-
 
 @app.get("/books/{book_id}")
 def get_book(book_id: str):
-	book = Books.get( book_id )
-	if book == None:
-		raise HTTPException(status_code = 404, detail = "Book not found")
-
-	return book
+    """
+    Get details of a specific book by ID.
+    Args:
+        book_id (str): ID of the book to retrieve
+    Returns:
+        dict: Book details
+    Raises:
+        HTTPException: 404 if book not found
+    """
+    book = Books.get(book_id)
+    if book == None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book
 
 @app.post("/books/{book_id}/rent")
 def rent_book(book_id: str, renter: str):
-	book = Books.get( book_id )
-	if book == None:
-		raise HTTPException(status_code = 404, detail = "Book not found")
-	
-	if book['renter'] != None:
-		return {"error": "Book is already rented"}
-	
-	Books[book_id]['renter'] = renter
-	save_books()
-	return book
+    """
+    Rent a book to a user.
+    Args:
+        book_id (str): ID of the book to rent
+        renter (str): Name/ID of the person renting the book
+    Returns:
+        dict: Updated book details or error message if already rented
+    Raises:
+        HTTPException: 404 if book not found
+    """
+    book = Books.get(book_id)
+    if book == None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    
+    if book['renter'] != None:
+        return {"error": "Book is already rented"}
+    
+    Books[book_id]['renter'] = renter
+    save_books()  # Persist changes to storage
+    return book
  
 @app.post("/books/{book_id}/return")
 def return_book(book_id: str, renter: str):
-	book = Books.get( book_id )
-	if book == None:
-		raise HTTPException(status_code = 404, detail = "Book not found")
-
-	if book['renter'] != renter:
-		return {"error": "Book is not rented by you"}
-
-	Books[book_id]['renter'] = None
-	save_books()
-	return book
-
+    """
+    Process a book return.
+    Args:
+        book_id (str): ID of the book being returned
+        renter (str): Name/ID of the person returning the book
+    Returns:
+        dict: Updated book details or error message if return conditions not met
+    Raises:
+        HTTPException: 404 if book not found
+    """
+    book = Books.get(book_id)
+    if book == None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    if book['renter'] != renter:
+        return {"error": "Book is not rented by you"}
+    Books[book_id]['renter'] = None
+    save_books()  # Persist changes to storage
+    return book
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port = 8000)    
