@@ -66,6 +66,8 @@ def all_books():
 	return Books
 
 # Admin stuff.
+
+#Vi går igenom alla böcker i vår databas och jämför titeln med de som finns i våran databas, hittas det så skickar vi tillbaka info, annars får vi ett 404 error som säger att boken inte finns!
 @app.get("/get-book-by-title/{book_title}")
 def get_book_by_title(book_title: str):
     for book_id, book in Books.items():
